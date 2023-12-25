@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Keyword Extraction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display:flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        #b1{
+            margin-top: 5%;
+            margin-left: 35%;
+            box-shadow: 5px 5px 3px 3px rgb(79, 75, 69);
+        }
+        #userText{
+            box-shadow: 5px 5px 3px 3px rgb(79, 75, 69);
+        }
+
+    </style>
+</head>
+<body>
+    <h1 style="color: darkslategray;">Enter Text to Extract Keywords</h1>
+    <form id="keywordForm" onsubmit="submitForm(event)">
+        <textarea id="userText" placeholder="enter any text" name="user_text" rows="5" cols="50"></textarea><br><br>
+        <input id="b1" type="submit" value="Extract Keywords">
+    </form>
+
+    <div id="result">
+    </div>
+
+    <script>
+        function submitForm(event) {
+            event.preventDefault();
+            let userText = document.getElementById('userText').value;
+
+            fetch('http://localhost:3000/process', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ user_text: userText }),
+     })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => displayResult(data.topics))
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+
+        function displayResult(topics) {
+            let resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<h2>Topics and their Top Words</h2><ul>';
+
+            topics.forEach(topic => {
+                resultDiv.innerHTML += `<li><strong>Topic ${topic[0]}:</strong> ${topic[1]}</li>`;
+            });
+
+            resultDiv.innerHTML += '</ul>';
+        }
+    </script>
+</body>
+</html>
